@@ -13,9 +13,9 @@ var fs = require('fs');
 var fallbackStream = require('fallback-stream');
 
 fallbackStream([
-  fs.cresteReadStream('foo.txt'), // foo.txt doesn't exist
-  fs.cresteReadStream('bar.txt'), // bar.txt: 'Hello!'
-  fs.cresteReadStream('baz.txt')  // baz.txt doesn't exist
+  fs.createReadStream('foo.txt'), // foo.txt doesn't exist
+  fs.createReadStream('bar.txt'), // bar.txt: 'Hello!'
+  fs.createReadStream('baz.txt')  // baz.txt doesn't exist
 ])
   .pipe(process.stdout); // yields 'Hello!'
 ```
