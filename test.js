@@ -1,6 +1,5 @@
 'use strict';
 
-var concat = require('concat-stream');
 var fallbackStream = require('./');
 var from = require('from2-array');
 var test = require('tape');
@@ -16,7 +15,7 @@ function emitTmpErrorImmediately(stream) {
 }
 
 test('fallbackStream()', function(t) {
-  t.plan(18);
+  t.plan(19);
 
   t.equal(fallbackStream.name, 'fallbackStream', 'must have a function name.');
 
@@ -39,10 +38,8 @@ test('fallbackStream()', function(t) {
       );
     });
 
-  fallbackStream([emitTmpErrorImmediately.bind(null, from('a'))])
-    .on('error', function(err) {
-      t.equal(err, tmpError, 'should emit an error when the last stream emits an error.');
-    })
+  fallbackStream([from.bind(null, 'a')])
+    .on('error', t.fail)
     .on('data', function(data) {
       t.equal(
         data.toString(),
@@ -51,22 +48,30 @@ test('fallbackStream()', function(t) {
       );
     });
 
-  var willEmitError = from('foo');
+  fallbackStream([emitTmpErrorImmediately.bind(null, through())])
+    .on('error', function(err) {
+      t.equal(err, tmpError, 'should emit an error when the last stream emits an error.');
+    });
+
+  var willEmitError = from('')
+    .on('error', function(err) {
+      t.equal(err, tmpError, 'should not remove error event listeners explicitly added.');
+    });
 
   fallbackStream([
     willEmitError,
-    from('bar')
+    from('a')
   ])
     .on('error', t.fail)
-    .pipe(concat(function(data) {
+    .on('data', function(data) {
       t.equal(
         data.toString(),
-        'foobar',
+        'a',
         'should use the next stream as a fallback when the current stream emits an error.'
       );
-    }));
+    });
 
-  willEmitError.emit('error', new Error('error'));
+  willEmitError.emit('error', tmpError);
 
   var alreadyEnded = from('a');
   alreadyEnded.pipe(through());
