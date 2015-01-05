@@ -51,7 +51,7 @@ module.exports = function fallbackStream(sourceStreams, options) {
         if (!stream || typeof stream.on !== 'function') {
           throw new TypeError('All functions in the array must return a readable stream.');
         }
-      } else if (!stream) {
+      } else if (!stream || typeof stream.on !== 'function') {
         throw new TypeError('All items in the array must be a readable stream or a function.');
       }
 
@@ -65,6 +65,7 @@ module.exports = function fallbackStream(sourceStreams, options) {
       stream.once('error', function cancelError(err) {
         if (filter(err)) {
           needsFallback = true;
+          result._errors.push(err);
           stream.emit('end');
           return;
         }
@@ -95,5 +96,6 @@ module.exports = function fallbackStream(sourceStreams, options) {
     };
   }), options);
 
+  result._errors = [];
   return result;
 };

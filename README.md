@@ -36,13 +36,13 @@ npm install fallback-stream
 var fallbackStream = require('fallback-stream');
 ```
 
-### fallbackStream(*array*, [, *options*])
+### stream = fallbackStream(*array*, [, *options*])
 
-*array*: `Array` of `Object` ([stream.Readable]) or `Function` (directly passed to [multistream](https://github.com/feross/multistream#usage))  
+*array*: `Array` (directly passed to [multistream](https://github.com/feross/multistream#usage))  
 *options*: `Object`, `Function` or `RegExp`  
 Return: `Object` ([stream.Readable])
 
-It returns a readable stream. When the first stream emits an error, the next one starts, and so on until one of the stream ends successfully. In other words, when the one of the streams ended, the rest won't be used.
+It returns a readable stream. When the first stream emits an error, the next one starts, and so on until one of the streams ends successfully. In other words, when the one of the streams ended, the rest won't be used.
 
 ```javascript
 var fs = require('fs');
@@ -75,7 +75,7 @@ Additionally, *fallback-stream* accepts [`errorFilter` option](#optionserrorfilt
 Type: `Function` or `RegExp`  
 Default: `function() { return true }`
 
-Filter error objects that streams emit. If the filtering result is falsy, the created stream emits an error immediately and won't use the rest of streams.
+Filter errors that streams emit. If the filtering result is falsy, the created stream emits an error immediately and won't use the rest of streams.
 
 ```javascript
 var fallbackStream = require('fallback-stream');
@@ -123,6 +123,13 @@ You can directly pass a `Function` or `RegExp` to the second argument to specify
 fallbackStream([/* streams */], /ENOENT/);
 ```
 
+#### stream._errors
+
+Type: `Array`  
+Default: `[]`
+
+The errors that streams were supposed to emit but didn't.
+ 
 ## License
 
 Copyright (c) 2014 [Shinnosuke Watanabe](https://github.com/shinnn)

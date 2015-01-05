@@ -15,7 +15,7 @@ function emitTmpErrorImmediately(stream) {
 }
 
 test('fallbackStream()', function(t) {
-  t.plan(19);
+  t.plan(22);
 
   t.equal(fallbackStream.name, 'fallbackStream', 'must have a function name.');
 
@@ -26,6 +26,9 @@ test('fallbackStream()', function(t) {
     .on('data', function(data) {
       t.equal(data.toString(), 'a', 'should create a readable stream.');
       t.deepEqual(option, {}, 'should not modify the original option object.');
+    })
+    .on('end', function() {
+      t.deepEqual(this._errors, [], 'should set `_errors` property.');
     });
 
   fallbackStream([from('a'), from('b')])
@@ -51,12 +54,14 @@ test('fallbackStream()', function(t) {
   fallbackStream([emitTmpErrorImmediately.bind(null, through())])
     .on('error', function(err) {
       t.equal(err, tmpError, 'should emit an error when the last stream emits an error.');
+      t.deepEqual(
+        this._errors,
+        [],
+        'should not push the error to the `_errors` property when it\'s actually emitted.'
+      );
     });
 
-  var willEmitError = from('')
-    .on('error', function(err) {
-      t.equal(err, tmpError, 'should not remove error event listeners explicitly added.');
-    });
+  var willEmitError = from('');
 
   fallbackStream([
     willEmitError,
@@ -69,8 +74,18 @@ test('fallbackStream()', function(t) {
         'a',
         'should use the next stream as a fallback when the current stream emits an error.'
       );
+    })
+    .on('end', function() {
+      t.deepEqual(
+        this._errors,
+        [tmpError],
+        'should push the ignored errors to the `_errors` property.'
+      );
     });
 
+  willEmitError.on('error', function(err) {
+    t.equal(err, tmpError, 'should not remove error event listeners explicitly added.');
+  });
   willEmitError.emit('error', tmpError);
 
   var alreadyEnded = from('a');
@@ -139,7 +154,7 @@ test('fallbackStream()', function(t) {
   );
 
   t.throws(
-    fallbackStream.bind(null, [null, false]),
+    fallbackStream.bind(null, [{a: 1}, null]),
     /TypeError.*must be a readable stream or a function/,
     'should throw a type error when the array itemis neither a stream nor a function.'
   );
