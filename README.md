@@ -1,10 +1,11 @@
 # fallback-stream
 
+[![NPM version](https://img.shields.io/npm/v/fallback-stream.svg?style=flat)](https://www.npmjs.com/package/fallback-stream)
 [![Build Status](https://img.shields.io/travis/shinnn/fallback-stream.svg?style=flat)](https://travis-ci.org/shinnn/fallback-stream)
 [![Build status](https://ci.appveyor.com/api/projects/status/n77lgth2o31tm4v5?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/fallback-stream)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/fallback-stream.svg?style=flat)](https://coveralls.io/r/shinnn/fallback-stream)
-[![Dependency Status](https://david-dm.org/shinnn/fallback-stream.svg?style=flat)](https://david-dm.org/shinnn/fallback-stream)
-[![devDependency Status](https://david-dm.org/shinnn/fallback-stream/dev-status.svg?style=flat)](https://david-dm.org/shinnn/fallback-stream#info=devDependencies)
+[![Dependency Status](https://img.shields.io/david/shinnn/fallback-stream.svg?style=flat&label=deps)](https://david-dm.org/shinnn/fallback-stream)
+[![devDependency Status](https://img.shields.io/david/dev/shinnn/fallback-stream.svg?style=flat&label=devDeps)](https://david-dm.org/shinnn/fallback-stream#info=devDependencies)
 
 Create a readable stream that swithes to the fallback on error
 
@@ -22,8 +23,6 @@ fallbackStream([
 
 ## Installation
 
-[![NPM version](https://img.shields.io/npm/v/fallback-stream.svg?style=flat)](https://www.npmjs.com/package/fallback-stream)
-
 [Use npm.](https://docs.npmjs.com/cli/install)
 
 ```
@@ -36,7 +35,7 @@ npm install fallback-stream
 var fallbackStream = require('fallback-stream');
 ```
 
-### stream = fallbackStream(*array*, [, *options*])
+### stream = fallbackStream(*array* [, *options*])
 
 *array*: `Array` (directly passed to [multistream](https://github.com/feross/multistream#usage))  
 *options*: `Object`, `Function` or `RegExp`  
@@ -66,7 +65,7 @@ fallbackStream([
 
 #### options
 
-The option object will be directly passed to [`stream.Readable`](http://nodejs.org/api/stream.html#stream_new_stream_readable_options) options.
+The option object will be directly passed to [`stream.Readable`](https://iojs.org/api/stream.html#stream_new_stream_readable_options) options.
 
 Additionally, *fallback-stream* accepts [`errorFilter` option](#optionserrorfilter).
 
@@ -132,8 +131,8 @@ The errors that streams were supposed to emit but didn't.
  
 ## License
 
-Copyright (c) 2014 [Shinnosuke Watanabe](https://github.com/shinnn)
+Copyright (c) [Shinnosuke Watanabe](https://github.com/shinnn)
 
 Licensed under [the MIT License](./LICENSE).
 
-[stream.Readable]: http://nodejs.org/api/stream.html#stream_class_stream_readable
+[stream.Readable]: https://iojs.org/api/stream.html#stream_class_stream_readable
