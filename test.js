@@ -1,29 +1,27 @@
 'use strict';
 
-var fallbackStream = require('./');
-var from = require('from2-array');
-var test = require('tape');
-var through = require('through2');
+const fallbackStream = require('./');
+const from = require('from2-array');
+const test = require('tape');
+const through = require('through2');
 
-var tmpError = new Error();
+const tmpError = new Error();
 
 function emitTmpErrorImmediately(stream) {
-  process.nextTick(function() {
-    stream.emit('error', tmpError);
-  });
+  process.nextTick(() => stream.emit('error', tmpError));
   return stream;
 }
 
-test('fallbackStream()', function(t) {
+test('fallbackStream()', t => {
   t.plan(22);
 
   t.equal(fallbackStream.name, 'fallbackStream', 'must have a function name.');
 
-  var option = {};
+  const option = {};
 
   fallbackStream([from('a')], option)
     .on('error', t.fail)
-    .on('data', function(data) {
+    .on('data', data => {
       t.equal(data.toString(), 'a', 'should create a readable stream.');
       t.deepEqual(option, {}, 'should not modify the original option object.');
     })
@@ -33,23 +31,19 @@ test('fallbackStream()', function(t) {
 
   fallbackStream([from('a'), from('b')])
     .on('error', t.fail)
-    .on('data', function(data) {
-      t.equal(
-        data.toString(),
-        'a',
-        'should use only the first stream when it doesn\'t emit any errors.'
-      );
-    });
+    .on('data', data => t.equal(
+      data.toString(),
+      'a',
+      'should use only the first stream when it doesn\'t emit any errors.'
+    ));
 
   fallbackStream([from.bind(null, 'a')])
     .on('error', t.fail)
-    .on('data', function(data) {
-      t.equal(
-        data.toString(),
-        'a',
-        'should accept a function that returns a stream as a stream source.'
-      );
-    });
+    .on('data', data => t.equal(
+      data.toString(),
+      'a',
+      'should accept a function that returns a stream as a stream source.'
+    ));
 
   fallbackStream([emitTmpErrorImmediately.bind(null, through())])
     .on('error', function(err) {
@@ -61,20 +55,18 @@ test('fallbackStream()', function(t) {
       );
     });
 
-  var willEmitError = from('');
+  const willEmitError = from('');
 
   fallbackStream([
     willEmitError,
     from('a')
   ])
     .on('error', t.fail)
-    .on('data', function(data) {
-      t.equal(
-        data.toString(),
-        'a',
-        'should use the next stream as a fallback when the current stream emits an error.'
-      );
-    })
+    .on('data', data => t.equal(
+      data.toString(),
+      'a',
+      'should use the next stream as a fallback when the current stream emits an error.'
+    ))
     .on('end', function() {
       t.deepEqual(
         this._errors,
@@ -83,14 +75,14 @@ test('fallbackStream()', function(t) {
       );
     });
 
-  willEmitError.on('error', function(err) {
+  willEmitError.on('error', err => {
     t.equal(err, tmpError, 'should not remove error event listeners explicitly added.');
   });
   willEmitError.emit('error', tmpError);
 
-  var alreadyEnded = from('a');
+  const alreadyEnded = from('a');
   alreadyEnded.pipe(through());
-  alreadyEnded.on('end', function() {
+  alreadyEnded.on('end', () => {
     fallbackStream([alreadyEnded, from('b')], null)
       .on('data', t.notOk)
       .on('error', t.fail);
@@ -104,76 +96,74 @@ test('fallbackStream()', function(t) {
   fallbackStream([
     emitTmpErrorImmediately.bind(null, through()),
     through()
-  ], function(err) {
-    return err.message === '__does_not_match__';
-  })
+  ], err => err.message === '__does_not_match__')
     .on('error', function(err) {
       t.deepEqual(err, tmpError, 'should use a function as an error filter.');
     });
 
   fallbackStream([
-    function() {
-      var stream = through();
+    () => {
+      const stream = through();
       process.nextTick(function() {
         stream.emit('error', new TypeError());
       });
       return stream;
     },
-    emitTmpErrorImmediately.bind(null, through()),
+    () => emitTmpErrorImmediately(through()),
     through()
   ], /TypeError/)
-    .on('error', function(err) {
+    .on('error', err => {
       t.equal(err, tmpError, 'should use a regular expression as an error filter.');
     });
 
   fallbackStream([
-    emitTmpErrorImmediately.bind(null, through.obj()),
+    () => emitTmpErrorImmediately(through.obj()),
     from.obj({a: 1})
   ], {
     objectMode: true,
-    errorFilter: function(err) {
+    errorFilter(err) {
       t.equal(err, tmpError, 'should use `errorFilter` option as an error filter.');
       return true;
     }
   })
     .on('error', t.fail)
-    .on('data', function(data) {
+    .on('data', data => {
       t.deepEqual(data, {a: 1}, 'should reflect readable stream options to the result.');
     });
 
   t.throws(
-    fallbackStream.bind(null, from('a')),
-    /TypeError.* is not an array.*must be an array/,
+    () => fallbackStream(from('a')),
+    /^TypeError.* is not an array.*must be an array/u,
     'should throw a type error when the first argument is not an array.'
   );
 
   t.throws(
-    fallbackStream.bind(null, [function() {}]),
-    /TypeError.*must return a readable stream/,
+    () => fallbackStream([() => {}]),
+    /^TypeError.*must return a readable stream/u,
     'should throw a type error when the function returns a non-stream value.'
   );
 
   t.throws(
-    fallbackStream.bind(null, [{a: 1}, null]),
-    /TypeError.*must be a readable stream or a function/,
+    () => fallbackStream([{a: 1}, null]),
+    /^TypeError.*must be a readable stream or a function/u,
     'should throw a type error when the array itemis neither a stream nor a function.'
   );
 
   t.throws(
-    fallbackStream.bind(null, [from('a')], 'foo'),
-    /TypeError.*it was string/,
+    () => fallbackStream([from('a')], 'foo'),
+    /^TypeError.*it was string/u,
     'should throw a type error when the second argument isn\'t a function/regexp/object.'
   );
 
   t.throws(
-    fallbackStream.bind(null, [from('a')], {errorFilter: 1}),
-    /TypeError.*it was number/,
+    () => fallbackStream([from('a')], {errorFilter: 1}),
+    /^TypeError.*it was number/u,
     'should throw a type error when the `errorFilter` option isn\'t a regexp/function.'
   );
 
   t.throws(
-    fallbackStream.bind(null),
-    /TypeError.* is not an array.*must be an array/,
+    () => fallbackStream(),
+    /^TypeError.* is not an array.*must be an array/u,
     'should throw a type error when it takes no arguments.'
   );
 });
