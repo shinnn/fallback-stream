@@ -6,10 +6,8 @@
 	"repository": "shinnn/fallback-stream",
 	"license": "MIT",
 	"scripts": {
-		"pretest": "jscs *.js && eslint *.js",
-		"test": "node test.js | tap-spec",
-		"coverage": "istanbul cover test.js",
-		"coveralls": "${npm_package_scripts_coverage} && istanbul-coveralls"
+		"pretest": "eslint .",
+		"test": "nyc node test.js"
 	},
 	"files": [
 		"index.js"
@@ -26,22 +24,20 @@
 		"failsafe"
 	],
 	"dependencies": {
-		"multistream": "^1.4.2"
+		"multistream": "^2.1.1"
 	},
 	"devDependencies": {
-		"eslint": "^0.14.1",
-		"from2-array": "0.0.3",
-		"istanbul": "^0.3.5",
-		"istanbul-coveralls": "^1.0.1",
-		"jscs": "^1.11.3",
-		"tap-spec": "^2.2.1",
-		"tape": "^3.5.0",
-		"through2": "^0.6.3"
+		"@shinnn/eslint-config": "^6.9.1",
+		"eslint": "^5.15.2",
+		"nyc": "^13.3.0",
+		"nyc-config-common": "^1.0.1",
+		"tape": "^4.10.1",
+		"to-readable-stream": "^2.0.0"
 	},
-	"jscsConfig": {
-		"preset": "google",
-		"maximumLineLength": 98,
-		"requireBlocksOnNewline": true,
-		"validateLineBreaks": "LF"
+	"eslintConfig": {
+		"extends": "@shinnn"
+	},
+	"nyc": {
+		"extends": "nyc-config-common"
 	}
 }
