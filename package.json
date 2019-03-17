@@ -1,6 +1,6 @@
 {
 	"name": "fallback-stream",
-	"version": "2.0.0-0",
+	"version": "2.0.0-1",
 	"description": "Create a `Readable` stream that swithes to the fallback on error",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
 	"repository": "shinnn/fallback-stream",
